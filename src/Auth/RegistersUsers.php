@@ -142,7 +142,12 @@ trait RegistersUsers
         //Iterate the fields
         foreach ($userFields as $key => $userField) {
             if ($userField!=null) {
+                Log::info($key);
                 if ($request->has($userField)) {
+                    if ($key == 'role_id'){
+                        $attributes['custom:role'] = $request->get($userField);
+                        continue;
+                    }
                     $attributes[$key] = $request->get($userField);
                 } else {
                     Log::error('RegistersUsers:createCognitoUser:InvalidUserFieldException');

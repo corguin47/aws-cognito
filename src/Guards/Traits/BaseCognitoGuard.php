@@ -28,6 +28,8 @@ use Ellaisys\Cognito\Exceptions\NoLocalUserException;
 use Ellaisys\Cognito\Exceptions\InvalidUserException;
 use Ellaisys\Cognito\Validators\AwsCognitoTokenValidator;
 
+use App\Models\User;
+
 /**
  * Trait Base Cognito Guard
  */
@@ -311,9 +313,12 @@ trait BaseCognitoGuard
             if (array_key_exists($keyPassword, $dataUser)) {
                 unset($dataUser[$keyPassword]);
             } //End if
-            
+
             //Create user into local DB, if not exists
-            $user = $userModel::updateOrCreate($dataUser);
+            $user = $userModel::updateOrCreate(
+                ['email' => $dataUser['email']], // Search criteria
+                $dataUser // Attributes to update or create with
+            );
         } //End if
 
         return $user;

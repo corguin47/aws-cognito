@@ -75,6 +75,7 @@ trait ResetsPasswords
                 'regex' => $this->passwordPolicy['message'],
             ]);
 
+
             if ($validator->fails()) {
                 throw new ValidationException($validator);
             } //End if
@@ -86,8 +87,7 @@ trait ResetsPasswords
             $user = $client->getUser($request[$paramUsername]);
 
             //Check user status and change password
-            if (($user['UserStatus'] == AwsCognitoClient::USER_STATUS_CONFIRMED) ||
-                ($user['UserStatus'] == AwsCognitoClient::RESET_REQUIRED_PASSWORD)) {
+            if ($user) {
                 $response = $client->resetPassword($request[$paramToken], $request[$paramUsername], $request[$paramPassword]);
             } else {
                 $response = false;
@@ -114,8 +114,12 @@ trait ResetsPasswords
             return new JsonResponse(['message' => trans($response)], 200);
         } //End if
 
-        return redirect($this->redirectPath())
-            ->with('status', trans($response));
+        // return redirect($this->redirectPath())
+        //     ->with('status', trans($response));
+        return response()->json([
+            'status' => trans($response),
+            'reset_success' => true,
+        ]);
     } //Function ends
 
 
@@ -134,9 +138,13 @@ trait ResetsPasswords
             ]);
         } //End if
 
-        return redirect()->back()
-            ->withInput($request->only('email'))
-            ->withErrors(['email' => trans($response)]);
+        // return redirect()->back()
+        //     ->withInput($request->only('email'))
+        //     ->withErrors(['email' => trans($response)]);
+        return response()->json([
+            'status' => trans($response),
+            'reset_success' => false,
+        ]);
     } //Function ends
 
 

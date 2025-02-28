@@ -114,6 +114,7 @@ trait SendsPasswordResetEmails
                     default:
                         //Send AWS Cognito reset link
                         $response = app()->make(AwsCognitoClient::class)->sendResetLink($username, $clientMetadata);
+                        //Update user status
                         $returnValue = ($response == Password::RESET_LINK_SENT);
                         break;
                 } //End switch

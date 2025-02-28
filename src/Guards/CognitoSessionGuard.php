@@ -11,6 +11,7 @@
 
 namespace Ellaisys\Cognito\Guards;
 
+use App\Models\User;
 use Aws\Result as AwsResult;
 
 use Illuminate\Support\Collection;
@@ -40,6 +41,8 @@ use Ellaisys\Cognito\Exceptions\InvalidUserModelException;
 use Ellaisys\Cognito\Exceptions\DBConnectionException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Aws\CognitoIdentityProvider\Exception\CognitoIdentityProviderException;
+
+use Inertia\Inertia;
 
 class CognitoSessionGuard extends SessionGuard implements StatefulGuard
 {
@@ -148,6 +151,7 @@ class CognitoSessionGuard extends SessionGuard implements StatefulGuard
 
             //Check if the payload has valid AWS credentials
             $responseCognito = collect($this->hasValidAWSCredentials($payloadCognito));
+
             if ($responseCognito && (!empty($this->claim))) {
                 //Process the claim
                 if ($user = $this->processAWSClaim()) {
@@ -160,6 +164,7 @@ class CognitoSessionGuard extends SessionGuard implements StatefulGuard
                     $returnValue = true;
                 } //End if
             } elseif ($responseCognito && $this->challengeName) {
+                
                 //Handle the challenge
                 $returnValue = $this->handleAWSChallenge();
             } else {
@@ -209,6 +214,7 @@ class CognitoSessionGuard extends SessionGuard implements StatefulGuard
 
         //Check if the user exists
         $this->lastAttempted = $user = $this->hasValidLocalCredentials($credentials);
+
         if (!empty($user) && ($user instanceof Authenticatable)) {
 
             //Save the user data into the claim
@@ -256,6 +262,9 @@ class CognitoSessionGuard extends SessionGuard implements StatefulGuard
                 break;
 
             case AwsCognitoClient::NEW_PASSWORD_CHALLENGE:
+                $returnValue = "redirect-to-set-new-password";
+                break;
+
             case AwsCognitoClient::RESET_REQUIRED_PASSWORD:
                 $this->login($user, $remember);
 

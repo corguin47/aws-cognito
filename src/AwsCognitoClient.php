@@ -339,7 +339,7 @@ class AwsCognitoClient
                     'SecretHash' => $this->cognitoSecretHash($username)
                 ]);
             } //End if
-
+            
             $this->client->confirmForgotPassword($payload);
         } catch (CognitoIdentityProviderException $e) {
             if ($e->getAwsErrorCode() === self::USER_NOT_FOUND) {
